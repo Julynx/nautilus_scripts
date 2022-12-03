@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+
+import os
+import subprocess
+
+error = "Error al quitar el fondo:"
+error_archivo = f"{error}\n\nTipo de archivo no reconocido."
+
+
+def zenity_error(msg):
+    subprocess.call(["zenity", "--error", "--text", msg])
+
+
+try:
+
+    # Get the selected images
+    paths = os.environ.get('NAUTILUS_SCRIPT_SELECTED_FILE_PATHS')
+
+    # split the paths
+    paths = paths.split('\n')
+
+    # remove empty paths
+    paths = [path for path in paths if path]
+
+    for path in paths:
+
+        # Save the unix date in seconds in a variable
+        date_s = str(int(os.popen('date +%s').read()))
+
+        # Path without extension
+        path_no_ext = os.path.splitext(path)[0]
+
+        # Run the command
+        cmd = ["rembg", "i", path, f"{path_no_ext}_{date_s}.png"]
+        ret = subprocess.call(cmd)
+
+        # Check the return code
+        if ret != 0:
+
+            # Delete the file if it was created
+            cmd = ["rm", f"{path_no_ext}_{date_s}.png"]
+            subprocess.call(cmd)
+
+            zenity_error(error_archivo)
+            exit(1)
+
+except Exception as e:
+    zenity_error(f"{error}\n\n{str(e)}")
+    exit(1)

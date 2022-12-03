@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+
+
+import os
+import subprocess
+
+
+def zenity_error(msg):
+    subprocess.call(["zenity", "--error", "--text", msg])
+
+
+try:
+    # Read the variable NAUTILUS_SCRIPT_SELECTED_FILE_PATHS
+    paths = os.environ.get('NAUTILUS_SCRIPT_SELECTED_FILE_PATHS')
+
+    # split the paths
+    paths = paths.split('\n')
+
+    # remove empty paths
+    paths = [path for path in paths if path]
+
+    for path in paths:
+        cmd = ["ps2pdf", path, path[:-4] + "_compressed" + ".pdf"]
+        output = subprocess.check_output(cmd)
+        if output:
+            raise Exception(output)
+
+except Exception as e:
+    text = "Ha habido un error convirtiendo el archivo seleccionado.\nPor favor, comprueba que es un archivo .pdf válido.\n\nInformación del error:\n\n"
+    zenity_error(text + str(e))

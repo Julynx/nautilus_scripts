@@ -1,0 +1,10 @@
+#!/bin/bash
+
+##
+# @file    bash.sh
+# @date    DD/MM/YYYY
+# @author  Julio Cabria
+##
+
+route=${$NAUTILUS_SCRIPT_CURRENT_URI:3}
+kitty $route

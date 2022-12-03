@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+
+
+import os
+import subprocess
+
+
+def zenity_error(msg):
+    subprocess.call(["zenity", "--error", "--text", msg])
+
+
+try:
+
+    # Read the variable NAUTILUS_SCRIPT_SELECTED_FILE_PATHS
+    paths = os.environ.get('NAUTILUS_SCRIPT_SELECTED_FILE_PATHS')
+
+    # split the paths
+    paths = paths.split('\n')
+
+    # remove empty paths
+    paths = [path for path in paths if path]
+
+    for path in paths:
+
+        splits = path.split('/')
+        dest = '/'.join(splits[:-1])
+
+        for file in os.listdir(path):
+
+            # Rename existing files
+            if os.path.exists(dest + '/' + file):
+
+                new_file = "copy_of_" + file
+                while os.path.exists(dest + '/' + new_file):
+                    new_file = "copy_of_" + new_file
+
+                os.rename(dest + '/' + file, dest + '/' + new_file)
+
+            # Extract files
+            file_path = os.path.join(path, file)
+            subprocess.call(["cp", "-r", file_path, dest])
+
+except Exception as e:
+    zenity_error(str(e))
